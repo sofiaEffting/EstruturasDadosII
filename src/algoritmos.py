@@ -5,7 +5,7 @@ from grafo import BRANCO, LARANJA, VERDE, Vertice, Grafo
 class AlgoritmosGrafo:
 
     @staticmethod
-    def bfs(grafo, inicio: Vertice, pasta, passo_unico=False, pausar=True):
+    def bfs(grafo:Grafo, inicio: Vertice, pasta, passo_unico=False, pausar=True):
         for v in grafo.vertices():
             v.cor = BRANCO
             v.distancia = float("inf")
@@ -41,7 +41,7 @@ class AlgoritmosGrafo:
             )
 
     @staticmethod
-    def dfs(grafo, pasta, passo_unico=False, pausar=True):
+    def dfs(grafo:Grafo, pasta, passo_unico=False, pausar=True):
         for v in grafo.vertices():
             v.cor = BRANCO
             v.predecessor = None
@@ -56,7 +56,7 @@ class AlgoritmosGrafo:
         return contador
 
     @staticmethod
-    def dfs_visit(grafo, u, tempo, pasta, contador, passo_unico=False, pausar=True):
+    def dfs_visit(grafo:Grafo, u, tempo, pasta, contador, passo_unico=False, pausar=True):
         tempo[0] += 1
         u.tempo_descoberta = tempo[0]
         u.cor = LARANJA
@@ -81,7 +81,7 @@ class AlgoritmosGrafo:
         return contador
 
     @staticmethod
-    def componentes_conexas_busca(grafo):
+    def componentes_conexas_busca(grafo:Grafo):
         for v in grafo.vertices():
             v.cor = BRANCO
             v.predecessor = None
@@ -105,7 +105,7 @@ class AlgoritmosGrafo:
         u.cor = VERDE
 
     @staticmethod
-    def componentes_conexas_unionfind(grafo):
+    def componentes_conexas_unionfind(grafo:Grafo):
         parent = {}
         rank = {}
 
@@ -115,7 +115,7 @@ class AlgoritmosGrafo:
 
         def find_set(v):
             if parent[v] != v:
-                parent[v] = find_set(parent[v])  # path compression
+                parent[v] = find_set(parent[v])
             return parent[v]
 
         def union(u, v):
@@ -143,4 +143,60 @@ class AlgoritmosGrafo:
             componentes[raiz].append(v)
 
         return list(componentes.values())
+    
+    @staticmethod
+    def conexo(grafo:Grafo):
+        visitados = set()
 
+        def dfs(v):
+            visitados.add(v)
+            for adj in grafo.adjacentes(v):
+                if adj not in visitados:
+                    dfs(adj)
+
+        inicio = next((v for v in grafo.vertices() if grafo.adjacentes(v)), None)
+        if not inicio:
+            return True
+
+        dfs(inicio)
+
+        for v in grafo.vertices():
+            if grafo.adjacentes(v) and v not in visitados:
+                return False
+
+        return True
+
+    @staticmethod
+    def euleriano(grafo:Grafo):
+        if not AlgoritmosGrafo.conexo(grafo):
+            return False
+        
+        for v in grafo.vertices():
+            if len(grafo.adjacentes(v)) % 2 != 0:
+                return False
+
+        return True
+
+    @staticmethod
+    def get_ciclo_euleriano(grafo:Grafo):
+        if not AlgoritmosGrafo.euleriano(grafo):
+            return None
+
+        ciclo = []
+        stack = []
+        arestas_restantes = {v: set(grafo.adjacentes(v)) for v in grafo.vertices()}
+
+        atual = next(v for v in grafo.vertices() if arestas_restantes[v])
+
+        while stack or arestas_restantes[atual]:
+            if not arestas_restantes[atual]:
+                ciclo.append(atual)
+                atual = stack.pop()
+            else:
+                stack.append(atual)
+                vizinho = arestas_restantes[atual].pop()
+                arestas_restantes[vizinho].remove(atual)
+                atual = vizinho
+
+        ciclo.append(atual)
+        return ciclo
