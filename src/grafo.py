@@ -17,21 +17,65 @@ class Vertice:
         self.tempo_descoberta = None
         self.tempo_finalizacao = None
 
+    def getId(self):
+        return self.id
+
+    def getCor(self):
+        return self.cor
+
+    def getPredecessor(self):
+        return self.predecessor
+
+    def getDistancia(self):
+        return self.distancia
+
+    def getTempoDescoberta(self):
+        return self.tempo_descoberta
+
+    def getTempoFinalizacao(self):
+        return self.tempo_finalizacao
+
+    def setId(self, id):
+        self.id = id
+
+    def setCor(self, cor):
+        self.cor = cor
+
+    def setPredecessor(self, pred):
+        self.predecessor = pred
+
+    def setDistancia(self, dist):
+        self.distancia = dist
+
+    def setTempoDescoberta(self, tempo):
+        self.tempo_descoberta = tempo
+
+    def setTempoFinalizacao(self, tempo):
+        self.tempo_finalizacao = tempo
+
     def __str__(self):
         return str(self.id)
 
     def __repr__(self):
         return f"Vertice({self.id})"
 
-
 class Grafo:
     def __init__(self, dirigido=False):
         self.dirigido = dirigido
-        self.adj = {}  # dict {Vertice: [Vertice]}
+        self.adj = {} 
 
-    # =========================
-    # Métodos principais
-    # =========================
+    def getDirigido(self):
+        return self.dirigido
+
+    def getAdj(self):
+        return self.adj
+
+    def setDirigido(self, dirigido):
+        self.dirigido = dirigido
+
+    def setAdj(self, adj):
+        self.adj = adj
+
     def getOrdem(self):
         return len(self.adj)
 
@@ -93,9 +137,6 @@ class Grafo:
     def adjacentes(self, v: Vertice):
         return self.adj[v]
 
-    # =========================
-    # Grau dos vértices
-    # =========================
     def grauE(self, v: Vertice):
         if not self.dirigido:
             return len(self.adj[v])
@@ -109,9 +150,6 @@ class Grafo:
             return self.grauE(v) + self.grauS(v)
         return len(self.adj[v])
 
-    # =========================
-    # Operações com arestas
-    # =========================
     def verticesA(self, aresta):
         return aresta
 
@@ -135,9 +173,6 @@ class Grafo:
                 return v
         return None
 
-    # =========================
-    # Visualização
-    # =========================
     def __str__(self):
         texto = "Grafo dirigido\n" if self.dirigido else "Grafo não-dirigido\n"
         for v, vizinhos in self.adj.items():
