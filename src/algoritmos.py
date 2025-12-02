@@ -1,4 +1,5 @@
 from collections import deque
+import heapq
 from grafo import BRANCO, LARANJA, VERDE, Vertice, Grafo
 
 
@@ -200,3 +201,56 @@ class AlgoritmosGrafo:
 
         ciclo.append(atual)
         return ciclo
+
+    @staticmethod
+    def floyd_warshall(grafo):
+        vertices = grafo.vertices()
+        distancias = {u.id: {v.id: float('inf') for v in vertices} for u in vertices}
+        predecessores = {u.id: {v.id: None for v in vertices} for u in vertices}
+        
+        for u in vertices:
+            distancias[u.id][u.id] = 0
+            for v, peso in grafo.adjacentes_com_peso(u):
+                distancias[u.id][v.id] = peso
+                predecessores[u.id][v.id] = u.id
+        for k in vertices:
+            for i in vertices:
+                for j in vertices:
+                    if distancias[i.id][j.id] > distancias[i.id][k.id] + distancias[k.id][j.id]:
+                        distancias[i.id][j.id] = distancias[i.id][k.id] + distancias[k.id][j.id]
+                        predecessores[i.id][j.id] = predecessores[k.id][j.id]
+
+        return distancias, predecessores
+
+    @staticmethod
+    def dijkstra(grafo, origem):
+        distancias = {v: float('inf') for v in grafo.vertices()}
+        predecessores = {v: None for v in grafo.vertices()}
+        distancias[grafo.get_vertice(origem)] = 0
+
+        fila_prioridade = [(0, grafo.get_vertice(origem))] 
+
+        while fila_prioridade:
+            dist_atual, u = heapq.heappop(fila_prioridade)
+
+            if dist_atual > distancias[u]:
+                continue
+
+            for v, peso in grafo.adjacentes_com_peso(u):
+                nova_dist = distancias[u] + peso
+                if nova_dist < distancias[v]:
+                    distancias[v] = nova_dist
+                    predecessores[v] = u
+                    heapq.heappush(fila_prioridade, (nova_dist, v))
+        distancias = {v.id: d for v, d in distancias.items()}
+        predecessores = {v.id: (p.id if p else None) for v, p in predecessores.items()}
+
+        return distancias, predecessores
+
+    @staticmethod
+    def possui_pesos_negativos(grafo: Grafo):
+        for u in grafo.vertices():
+            for v, peso in grafo.adjacentes_com_peso(u):
+                if peso < 0:
+                    return True
+        return False
