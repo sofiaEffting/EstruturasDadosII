@@ -254,3 +254,72 @@ class AlgoritmosGrafo:
                 if peso < 0:
                     return True
         return False
+    
+    @staticmethod
+    def kruskal(grafo):
+        arestas = []
+        for u in grafo.vertices():
+            for v, peso in grafo.adjacentes_com_peso(u):
+                arestas.append((peso, u, v))
+        arestas.sort(key=lambda x: x[0])
+        parent = {}
+        rank = {}
+
+        def make_set(v):
+            parent[v] = v
+            rank[v] = 0
+
+        def find(v):
+            if parent[v] != v:
+                parent[v] = find(parent[v])
+            return parent[v]
+
+        def union(v1, v2):
+            root1 = find(v1)
+            root2 = find(v2)
+            if root1 != root2:
+                if rank[root1] > rank[root2]:
+                    parent[root2] = root1
+                elif rank[root1] < rank[root2]:
+                    parent[root1] = root2
+                else:
+                    parent[root2] = root1
+                    rank[root1] += 1
+
+        for v in grafo.vertices():
+            make_set(v)
+
+        mst = []
+        custo_total = 0
+
+        for peso, u, v in arestas:
+            if find(u) != find(v):
+                union(u, v)
+                mst.append((u, v, peso))
+                custo_total += peso
+
+        return mst, custo_total
+    
+    @staticmethod
+    def prim(grafo, vertice_inicial):
+        mst = []
+        visitados = set()
+        fila_prioridade = []
+        custo_total = 0
+
+        def adicionar_arestas(v):
+            visitados.add(v)
+            for adj, peso in grafo.adjacentes_com_peso(v):
+                if adj not in visitados:
+                    heapq.heappush(fila_prioridade, (peso, v, adj))
+
+        adicionar_arestas(vertice_inicial)
+
+        while fila_prioridade:
+            peso, u, v = heapq.heappop(fila_prioridade)
+            if v not in visitados:
+                mst.append((u, v, peso))
+                custo_total += peso
+                adicionar_arestas(v)
+
+        return mst, custo_total
