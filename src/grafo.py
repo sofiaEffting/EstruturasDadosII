@@ -110,16 +110,17 @@ class Grafo:
                     self.adj[u].remove(v)
             del self.adj[v]
 
-    def insereA(self, u_id, v_id, peso=None):
+    def insereA(self, u_id, v_id, peso=1):
         u = self.get_vertice(u_id)
         v = self.get_vertice(v_id)
         if u is None:
             u = self.insereV(u_id)
         if v is None:
             v = self.insereV(v_id)
-        self.adj[u].append(v)
-        if not self.dirigido:
-            self.adj[v].append(u)
+        if (v, peso) not in self.adj[u]:
+            self.adj[u].append((v, peso))
+        if not self.dirigido and (u, peso) not in self.adj[v]:
+            self.adj[v].append((u, peso))
 
     def removeA(self, u: Vertice, v: Vertice):
         if v in self.adj.get(u, []):
@@ -207,3 +208,8 @@ class Grafo:
         if pausar:
             input("Pressione Enter para continuar...")
         return contador + 1
+
+    def adjacentes_com_peso(self, vertice):
+        if vertice not in self.adj:
+            return []
+        return [(v, peso if isinstance(peso, (int, float)) else 1) for v, peso in self.adj[vertice]]
